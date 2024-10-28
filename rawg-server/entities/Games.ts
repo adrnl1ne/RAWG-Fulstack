@@ -1,54 +1,48 @@
-import {
-  Column,
-  Entity,
-  JoinTable,
-  ManyToMany,
-  PrimaryGeneratedColumn,
-} from "typeorm";
-import { Genre } from "./Genres";
-import { ParentPlatform } from "./ParentPlatforms";
-import { Store } from "./Stores";
+import { Column, Entity, JoinTable, ManyToMany } from "typeorm";
+import { Genres } from "./Genres";
+import { ParentPlatforms } from "./ParentPlatforms";
+import { Stores } from "./Stores";
 
-@Entity("games", { schema: "rawgdatabase" })
-export class Game {
-  @PrimaryGeneratedColumn({ type: "int", name: "id" })
-  id!: number;
+@Entity("games", { schema: "rawgDatabase" })
+export class Games {
+  @Column("int", { primary: true, name: "id" })
+  id: number;
 
   @Column("varchar", { name: "name", length: 255 })
-  name!: string;
+  name: string;
 
   @Column("varchar", { name: "background_image", nullable: true, length: 255 })
-  background_image!: string | null;
+  backgroundImage: string | null;
 
   @Column("int", { name: "metacritic", nullable: true })
-  metacritic!: number | null;
+  metacritic: number | null;
 
-  @ManyToMany(() => Genre, (genre) => genre.games)
+  @ManyToMany(() => Genres, (genres) => genres.games)
   @JoinTable({
     name: "games_genres",
     joinColumns: [{ name: "games_id", referencedColumnName: "id" }],
     inverseJoinColumns: [{ name: "genres_id", referencedColumnName: "id" }],
-    schema: "rawgdatabase",
+    schema: "rawgDatabase",
   })
-  genres!: Genre[];
+  genres: Genres[];
 
-  @ManyToMany(() => ParentPlatform, (parentPlatform) => parentPlatform.games)
+  @ManyToMany(() => ParentPlatforms, (parentPlatforms) => parentPlatforms.games)
   @JoinTable({
     name: "games_parent_platforms",
     joinColumns: [{ name: "games_id", referencedColumnName: "id" }],
     inverseJoinColumns: [
       { name: "parent_platforms_id", referencedColumnName: "id" },
     ],
-    schema: "rawgdatabase",
+    schema: "rawgDatabase",
   })
-  parent_platforms!: ParentPlatform[];
+  parentPlatforms: ParentPlatforms[];
 
-  @ManyToMany(() => Store, (store) => store.games)
+  @ManyToMany(() => Stores, (stores) => stores.games)
   @JoinTable({
     name: "games_stores",
     joinColumns: [{ name: "games_id", referencedColumnName: "id" }],
     inverseJoinColumns: [{ name: "stores_id", referencedColumnName: "id" }],
-    schema: "rawgdatabase",
+    schema: "rawgDatabase",
   })
-  stores!: Store[];
+  stores: Stores[];
 }
