@@ -1,17 +1,24 @@
 version: "3.8"
 
 services:
-  mysql:
+    mysql:
     image: mysql:8.0
-    container_name: mysql
+    container_name: mysql-db-testmandatory
+    env_file:
+      - .env
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-    networks:
-      - backend
-    volumes:
-      - mysql_data:/var/lib/mysql
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     ports:
       - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/src/main/resources/database:/docker-entrypoint-initdb.d
+    networks:
+      - mysql_net
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
 
   rawg-server:
     container_name: rawg-server

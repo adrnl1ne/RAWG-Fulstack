@@ -18,13 +18,35 @@ const useData = <T>(
 
   useEffect(
     () => {
+      const controller = new AbortController();
       setIsLoading(true);
 
+      const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
+
       apiClient
-        .get<Response<T>>(endpoint, { ...requestConfig })
-        .then((response) => setData(response.data.results))
-        .catch((error) => setError(error.message))
+        .get<Response<T>>(cleanEndpoint, { 
+          ...requestConfig,
+          signal: controller.signal 
+        })
+        .then((response) => {
+          console.log('Success response:', response);
+          setData(response.data.results);
+          setError("");  // Clear any previous errors
+        })
+        .catch((error) => {
+          if (error.name === 'CanceledError') return;
+          
+          console.error('Error details:', {
+            message: error.message,
+            endpoint: cleanEndpoint,
+            fullUrl: `${apiClient.defaults.baseURL}/${cleanEndpoint}`,
+            status: error.response?.status
+          });
+          setError(error.message);
+        })
         .finally(() => setIsLoading(false));
+
+      return () => controller.abort();
     },
     dependencies ? [...dependencies] : []
   );
